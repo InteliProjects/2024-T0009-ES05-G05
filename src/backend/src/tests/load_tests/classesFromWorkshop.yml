@@ -1,0 +1,15 @@
+config:
+  target: 'http://localhost:3333'
+  phases:
+    - duration: 60
+      arrivalRate: 10
+  variables:
+    fk_id_oficina: [2]
+
+scenarios:
+  - name: "Buscar turmas por ID de oficina"
+    flow:
+      - loop:
+          - get:
+              url: "/classes/classesFromWorkshop/{{ fk_id_oficina }}"
+        count: 10

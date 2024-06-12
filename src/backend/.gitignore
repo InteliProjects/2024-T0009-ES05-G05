@@ -1,0 +1,4 @@
+# dependencies
+/node_modules
+fly_backend.pem
+.env

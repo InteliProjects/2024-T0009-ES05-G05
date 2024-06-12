@@ -1,0 +1,508 @@
+SET FOREIGN_KEY_CHECKS=0;
+
+SET SQL_SAFE_UPDATES=0;
+
+DROP TABLE IF EXISTS lista_de_presenca;
+DROP TABLE IF EXISTS professor_por_aula;
+DROP TABLE IF EXISTS professor_por_turma;
+DROP TABLE IF EXISTS aulas;
+DROP TABLE IF EXISTS usuario;
+DROP TABLE IF EXISTS lider;
+DROP TABLE IF EXISTS ong;
+DROP TABLE IF EXISTS matricula;
+DROP TABLE IF EXISTS alunos;
+DROP TABLE IF EXISTS turmas;
+DROP TABLE IF EXISTS oficinas;
+DROP TABLE IF EXISTS professores;
+DROP TABLE IF EXISTS alunos_por_oficina;
+
+CREATE TABLE oficinas (
+    id_oficina INT AUTO_INCREMENT PRIMARY KEY,
+    fk_id_ong INT NOT NULL,
+    nome_oficina VARCHAR(100) NOT NULL,
+    categoria VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE turmas (
+    id_turma INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    fk_id_oficina INT,
+    data_inicio DATE,
+    data_fim DATE,
+    dias_semana VARCHAR(50)
+);
+
+
+CREATE TABLE alunos (
+    id_aluno INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100),
+    telefone VARCHAR(100),
+    data_nascimento DATE NOT NULL,
+    cpf VARCHAR(100),
+    genero VARCHAR(100) NOT NULL,
+    etnia VARCHAR(100) NOT NULL,
+    endereco VARCHAR(100),
+    estado_civil VARCHAR(100),
+    status BOOLEAN NOT NULL
+);
+
+CREATE TABLE alunos_por_oficina (
+    fk_id_aluno INT NOT NULL,
+    fk_id_oficina INT NOT NULL
+);
+
+CREATE TABLE matricula (
+    fk_id_aluno INT NOT NULL,
+    fk_id_turma INT NOT NULL,
+    fk_id_oficina INT NOT NULL
+);
+
+CREATE TABLE usuario (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    email VARCHAR(100),
+    senha VARCHAR(100),
+    permissoes VARCHAR(100)
+);
+
+CREATE TABLE ong (
+    id_ong INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    email VARCHAR(100),
+    responsavel VARCHAR(100),
+    telefone VARCHAR(20),
+    cnpj VARCHAR(20),
+    endereco VARCHAR(100)
+);
+
+
+CREATE TABLE lider (
+    id_lider INT AUTO_INCREMENT PRIMARY KEY,
+    fk_id_ong INT,
+    nome VARCHAR(100),
+    email VARCHAR(100),
+    data_nascimento DATE,
+    telefone VARCHAR(11),
+    cpf VARCHAR(14),
+    genero ENUM('Masculino', 'Feminino', 'Outro', 'Prefiro não informar'),
+    etnia ENUM('Pardo', 'Branco', 'Preto', 'Amarelo', 'Indígena', 'Prefiro não informar'),
+    endereco VARCHAR(100)
+);
+
+CREATE TABLE professores (
+    id_professor INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    data_nascimento DATE NOT NULL,
+    telefone INT NOT NULL,
+    cpf VARCHAR(20) NOT NULL,
+    genero ENUM('Masculino', 'Feminino', 'Outro', 'Prefiro não informar') NOT NULL,
+    etnia ENUM('Pardo', 'Branco', 'Preto', 'Amarelo', 'Indígena', 'Prefiro não informar') NOT NULL,
+    endereco VARCHAR(100)
+
+);
+
+CREATE TABLE professor_por_turma (
+    fk_id_turma INT,
+    fk_id_professor INT,
+    fk_id_oficina INT
+
+);
+
+
+CREATE TABLE aulas (
+    id_aula INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    data VARCHAR(50),
+    fk_id_turma INT,
+    fk_id_oficina INT
+);
+
+CREATE TABLE lista_de_presenca (
+    fk_id_aluno INT,
+    fk_id_aula INT,
+    fk_id_oficina INT,
+    presenca BOOLEAN
+);
+
+SET FOREIGN_KEY_CHECKS=0;
+
+ALTER TABLE oficinas ADD CONSTRAINT fk_id_oficina_ong FOREIGN KEY (fk_id_ong) REFERENCES ong(id_ong);
+ALTER TABLE turmas ADD CONSTRAINT fk_id_oficina_turmas FOREIGN KEY (fk_id_oficina) REFERENCES oficinas(id_oficina);
+
+ALTER TABLE alunos_por_oficina ADD CONSTRAINT fk_id_aluno_alunos_por_oficina FOREIGN KEY (fk_id_aluno) REFERENCES alunos(id_aluno);
+ALTER TABLE alunos_por_oficina ADD CONSTRAINT fk_id_oficina_alunos_por_oficina FOREIGN KEY (fk_id_oficina) REFERENCES oficinas(id_oficina);
+
+ALTER TABLE matricula ADD CONSTRAINT fk_id_aluno_matricula FOREIGN KEY (fk_id_aluno) REFERENCES alunos(id_aluno);
+ALTER TABLE matricula ADD CONSTRAINT fk_id_turma_matricula FOREIGN KEY (fk_id_turma) REFERENCES turmas(id_turma);
+
+ALTER TABLE lider ADD CONSTRAINT fk_id_ong_lider FOREIGN KEY (fk_id_ong) REFERENCES ong(id_ong);
+
+ALTER TABLE professor_por_turma ADD CONSTRAINT fk_id_turma_professor_por_turma FOREIGN KEY (fk_id_turma) REFERENCES turmas(id_turma);
+ALTER TABLE professor_por_turma ADD CONSTRAINT fk_id_professor_professor_por_turma FOREIGN KEY (fk_id_professor) REFERENCES professores(id_professor);
+
+ALTER TABLE lista_de_presenca ADD CONSTRAINT fk_id_oficina_lista_de_presenca FOREIGN KEY (fk_id_oficina) REFERENCES oficinas(id_oficina);
+ALTER TABLE lista_de_presenca ADD CONSTRAINT fk_id_aluno_lista_de_presenca FOREIGN KEY (fk_id_aluno) REFERENCES alunos(id_aluno);
+ALTER TABLE lista_de_presenca ADD CONSTRAINT fk_id_aula_lista_de_presenca FOREIGN KEY (fk_id_aula) REFERENCES aulas(id_aula);
+
+INSERT INTO oficinas (fk_id_ong, nome_oficina, categoria) VALUES
+(1, 'Balé', 'Dança'),
+(1, 'Futebol', 'Esporte'),
+(1, 'Teatro', 'Cultura'),
+(1, 'Empreendedorismo Digital', 'Empreendedorismo'),
+(1, 'Inglês', 'Cursos'),
+(1, 'Street Dance', 'Dança'),
+(1, 'Vôlei', 'Esporte'),
+(1, 'Cinema', 'Cultura'),
+(1, 'Gestão de Projetos', 'Empreendedorismo'),
+(1, 'Espanhol', 'Cursos');
+
+
+INSERT INTO turmas ( fk_id_oficina, nome, data_inicio, data_fim, dias_semana) VALUES
+(1, 'Turma 01', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(2, 'Turma 01', '2024-01-30', '2024-12-15', 'terça-feira, quinta-feira'),
+(3, 'Turma 01', '2024-01-30', '2024-12-15', 'quarta-feira'),
+(4, 'Turma 01', '2024-01-30', '2024-12-15', 'segunda-feira'),
+(5, 'Turma 01', '2024-01-30', '2024-12-15', 'sexta-feira'),
+(2, 'Turma 02', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(3, 'Turma 02', '2024-01-30', '2024-12-15', 'terça-feira, quinta-feira'),
+(4, 'Turma 02', '2024-01-30', '2024-12-15', 'terça-feira'),
+(1, 'Turma 02', '2024-01-30', '2024-12-15', 'quinta-feira'),
+(2, 'Turma 03', '2024-01-30', '2024-12-15', 'sexta-feira'),
+(5, 'Turma 02', '2024-01-30', '2024-12-15', 'quarta-feira, sexta-feira'),
+(4, 'Turma 03', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira'),
+(1, 'Turma 03', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(2, 'Turma 04', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(6, 'Turma 01', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(7, 'Turma 01', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(8, 'Turma 01', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(9, 'Turma 01', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(10, 'Turma 01', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(1, 'Turma 04', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(2, 'Turma 05', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(3, 'Turma 03', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(4, 'Turma 04', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(5, 'Turma 03', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(6, 'Turma 02', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(7, 'Turma 02', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(8, 'Turma 02', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(9, 'Turma 02', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira'),
+(10, 'Turma 02', '2024-01-30', '2024-12-15', 'segunda-feira, quarta-feira, sexta-feira');
+
+
+INSERT INTO alunos ( nome, email, telefone, data_nascimento, cpf, genero, etnia, endereco, estado_civil, status) VALUES
+( 'João Silva', 'joao@example.com', '123456789', '2000-01-15', '123.456.789-10', 'Masculino', 'Branco', 'Rua A, 123', 'Solteiro', 1),
+( 'Maria Souza', 'maria@example.com', '987654321', '1999-05-20', '987.654.321-00', 'Feminino', 'Pardo', 'Avenida B, 456', 'Casada', 1),
+( 'Pedro Santos', 'pedro@example.com', '555555555', '2002-10-03', '222.222.222-22', 'Masculino', 'Preto', 'Travessa C, 789', 'Solteiro', 1),
+( 'Ana Oliveira', 'ana@example.com', '777777777', '2001-03-08', '333.333.333-33', 'Feminino', 'Branco', 'Rua D, 321', 'Solteira', 1),
+( 'Luiz Pereira', 'luiz@example.com', '999999999', '2003-07-12', '444.444.444-44', 'Masculino', 'Indígena', 'Avenida E, 567', 'Divorciado', 1),
+( 'Fernanda Silva', 'fernanda@example.com', '123456789', '2000-01-15', '123.456.789-10', 'Feminino', 'Branco', 'Rua A, 123', 'Solteiro', 1),
+( 'Rafael Souza', 'rafael@example.com', '987654321', '1999-05-20', '987.654.321-00', 'Masculino', 'Pardo', 'Avenida B, 456', 'Casada', 1),
+( 'Juliana Santos', 'juliana@example.com', '555555555', '2002-10-03', '222.222.222-22', 'Feminino', 'Preto', 'Travessa C, 789', 'Solteiro', 1),
+( 'Daniel Oliveira', 'daniel@example.com', '777777777', '2001-03-08', '333.333.333-33', 'Masculino', 'Branco', 'Rua D, 321', 'Solteira', 1),
+( 'Carla Pereira', 'carla@example.com', '999999999', '2003-07-12', '444.444.444-44', 'Feminino', 'Indígena', 'Avenida E, 567', 'Divorciado', 1),
+( 'Mariana Silva', 'mari@example.com', '000000000', '2000-01-15', '123.456.789-10', 'Feminino', 'Branco', 'Rua A, 123', 'Solteiro', 1),
+( 'José Souza', 'example@example.com', '987654321', '1999-05-20', '987.654.321-00', 'Masculino', 'Pardo', 'Avenida B, 456', 'Casada', 1),
+( 'Luciana Santos', 'example@example.com', '555555555', '2002-10-03', '222.222.222-22', 'Feminino', 'Preto', 'Travessa C, 789', 'Solteiro', 1),
+( 'Ana Oliveira',  'example@example.com', '777777777', '2001-03-08', '333.333.333-33', 'Masculino', 'Branco', 'Rua D, 321', 'Solteira', 1),
+( 'João Pereira',  'example@example.com', '999999999', '2003-07-12', '444.444.444-44', 'Feminino', 'Indígena', 'Avenida E, 567', 'Divorciado', 1),
+( 'Bruna Brasil', 'example@example.com', '000000000', '2000-01-15', '123.456.789-10', 'Feminino', 'Branco', 'Rua A, 123', 'Solteiro', 1),
+( 'Heitor Prudente', 'example@example.com', '987654321', '1999-05-20', '987.654.321-00', 'Masculino', 'Pardo', 'Avenida B, 456', 'Casada', 1),
+( 'Clara Mohammad',  'example@example.com', '555555555', '2002-10-03', '222.222.222-22', 'Feminino', 'Preto', 'Travessa C, 789', 'Solteiro', 1),
+( 'Isabella Saldanha',  'example@example.com', '777777777', '2001-03-08', '333.333.333-33', 'Masculino', 'Branco', 'Rua D, 321', 'Solteira', 1);
+
+INSERT INTO matricula ( fk_id_aluno, fk_id_turma, fk_id_oficina) VALUES
+( 1, 1, 1),
+( 2, 1, 1),
+( 3, 1, 1),
+( 4, 1, 1),
+(5, 1, 1),
+(6, 1, 1),
+(7, 1, 1),
+(8, 1, 1),
+(9, 1, 1),
+(10, 1, 1),
+(11, 1, 1),
+(12, 1, 1),
+(13, 1, 1),
+(14, 1, 1),
+(5, 2, 2),
+(6, 2, 2),
+(7, 2, 2),
+(9, 2, 2),
+(10, 2, 2),
+(11, 2, 2),
+(12, 2, 2),
+(13, 2, 2),
+(14, 2, 2),
+(15, 2, 2),
+(16, 2, 2),
+(17, 2, 2),
+(18, 2, 2),
+(1, 3, 3),
+(2, 3, 3),
+(3, 3, 3),
+(4, 3, 3),
+(5, 3, 3),
+(6, 3, 3),
+(7, 3, 3),
+(8, 3, 3),
+(9, 3, 3),
+(10, 3, 3),
+(11, 3, 3),
+(12, 3, 3),
+(13, 3, 3),
+(14, 3, 3),
+(5, 4, 4),
+(6, 4, 4),
+(7, 4, 4),
+(8, 4, 4),
+(9, 4, 4),
+(10, 4, 4),
+(11, 4, 4),
+(12, 4, 4),
+(13, 4, 4),
+(14, 4, 4),
+(15, 4, 4),
+(16, 4, 4),
+(17, 4, 4),
+(18, 4, 4),
+(1, 5, 5),
+(2, 5, 5),
+(3, 5, 5),
+(4, 5, 5),
+(5, 5, 5),
+(6, 5, 5),
+(7, 5, 5),
+(8, 5, 5),
+(9, 5, 5),
+(10, 5, 5),
+(11, 5, 5),
+(12, 5, 5),
+(13, 5, 5),
+(14, 5, 5),
+(5, 6, 2),
+(6, 6, 2),
+(7, 6, 2),
+(8, 6, 2),
+(9, 6, 2),
+(10, 6, 2),
+(11, 6, 2),
+(12, 6, 2),
+(13, 6, 2),
+(14, 6, 2),
+(15, 6, 2),
+(16, 6, 2),
+(17, 6, 2),
+(18, 6, 2),
+(1, 7, 3),
+(2, 7, 3),
+(3, 7, 3),
+(4, 7, 3),
+(5, 7, 3),
+(6, 7, 3),
+(7, 7, 3),
+(8, 7, 3),
+(9, 7, 3),
+(10, 7, 3),
+(11, 7, 3),
+(15, 7, 3),
+(13, 7, 3),
+(14, 7, 3),
+(5, 8, 4),
+(6, 8, 4),
+(7, 8, 4),
+(8, 8, 4),
+(9, 8, 4),
+(10, 8, 4),
+(11, 8, 4),
+(12, 8, 4),
+(13, 8, 4),
+(14, 8, 4),
+(15, 8, 4),
+(16, 8, 4),
+(17, 8, 4),
+(18, 8, 4),
+(1, 9, 1),
+(2, 9, 1),
+(3, 9, 1),
+(4, 10, 2),
+(5, 10, 2),
+(6, 10, 2),
+(7, 10, 2),
+(8, 10, 2),
+(9, 10, 2),
+(10, 10, 2),
+(11, 10, 2),
+(12, 10, 2),
+(13, 10, 2),
+(14, 10, 2),
+(15, 10, 2),
+(16, 10, 2),
+(17, 10, 2),
+(18, 10, 2),
+(1, 11, 5),
+(3, 11, 5),
+(5, 11, 5),
+(7, 12, 4),
+(9, 13, 1),
+(11, 14, 2),
+(13, 15, 6),
+(15, 16, 7),
+(17, 17, 8),
+(2, 18, 9),
+(17, 19, 10),
+(2, 20, 1),
+(17, 21, 2),
+(2, 22, 3),
+(17, 23, 4),
+(2, 24, 5),
+(17, 25, 6),
+(2, 26, 7),
+(17, 27, 8),
+(2, 28, 9),
+(17, 29, 10);
+
+INSERT INTO usuario (nome, email, senha, permissoes) VALUES
+('admin', 'admin@example.com', 'admin123', 'gf'),
+('Fernanda Oliveira', 'fernanda@lider.com', 'senha123', 'lider'),
+('Rafael Silva', 'rafael@lider.com', 'senha123', 'lider'),
+('Maria Santos', 'maria@professor.com', 'senha123', 'professor'),
+('José Silva', 'jose@professor.com', 'senha123', 'professor');
+
+INSERT INTO ong ( nome, email, responsavel, telefone, cnpj, endereco) VALUES
+( 'ONG Artes', 'contato@ongartes.org', 'Ana Silva', '111111111', '12.345.678/0001-01', 'Rua X, 789'),
+( 'Tech ONG', 'contato@techong.org', 'Carlos Souza', '222222222', '23.456.789/0001-02', 'Avenida Y, 456'),
+( 'ONG Sabor', 'contato@ongsabor.org', 'Maria Oliveira', '333333333', '34.567.890/0001-03', 'Travessa Z, 123'),
+( 'Música para Todos', 'contato@musicaparatodos.org', 'Luciana Pereira', '444444444', '45.678.901/0001-04', 'Rua W, 234'),
+( 'ONG Verde', 'contato@ongverde.org', 'João Santos', '555555555', '56.789.012/0001-05', 'Avenida V, 345');
+
+INSERT INTO lider (fk_id_ong, nome, email, data_nascimento, telefone, cpf, genero, etnia, endereco) VALUES
+(1, 'Fernanda Oliveira', 'fernanda@example.com', '1990-02-25', '123456789', '123.456.789-01', 'Feminino', 'Branco', 'Rua Principal, 123'),
+(2, 'Rafael Silva', 'rafael@example.com', '1985-07-10', '987654321', '987.654.321-02', 'Masculino', 'Pardo', 'Avenida Central, 456'),
+(3, 'Juliana Souza', 'juliana@example.com', '1988-11-15', '555555555', '222.222.222-03', 'Feminino', 'Preto', 'Travessa Secundária, 789'),
+(4, 'Daniel Santos', 'daniel@example.com', '1983-05-20', '777777777', '333.333.333-04', 'Masculino', 'Branco', 'Rua do Centro, 321'),
+(5, 'Carla Pereira', 'carla@example.com', '1980-09-30', '999999999', '444.444.444-05', 'Feminino', 'Indígena', 'Avenida Lateral, 567');
+
+INSERT INTO professores ( nome, email, data_nascimento, telefone, cpf, genero, etnia, endereco) VALUES
+( 'Maria Santos', 'maria.santos@example.com', '1980-05-10', '111111111', '111.111.111-11', 'Feminino', 'Branco', 'Rua dos Professores, 123'),
+( 'José Silva', 'jose.silva@example.com', '1975-08-15', '222222222', '222.222.222-22', 'Masculino', 'Pardo', 'Avenida dos Educadores, 456'),
+( 'Ana Souza', 'ana.souza@example.com', '1982-11-20', '333333333', '333.333.333-33', 'Feminino', 'Preto', 'Travessa das Aulas, 789'),
+( 'Pedro Oliveira', 'pedro.oliveira@example.com', '1978-04-25', '444444444', '444.444.444-44', 'Masculino', 'Branco', 'Rua das Salas, 321'),
+( 'Mariana Ferreira', 'mariana.ferreira@example.com', '1983-10-05', '555555555', '555.555.555-55', 'Feminino', 'Indígena', 'Avenida dos Conhecimentos, 567');
+
+INSERT INTO professor_por_turma (fk_id_professor, fk_id_turma, fk_id_oficina) VALUES
+(1, 1, 1),
+(2, 1, 1),
+(3, 2, 2),
+(4, 2, 2),
+(5, 3, 3),
+(1, 3, 3),
+(2, 4, 4),
+(3, 4, 4),
+(4, 5, 5),
+(5, 5, 5),
+(1, 6, 1),
+(2, 6, 1),
+(3, 7, 2),
+(4, 7, 2),
+(5, 8, 3),
+(1, 8, 3),
+(2, 9, 4),
+(3, 9, 4),
+(4, 10, 5),
+(5, 10, 5);
+
+INSERT INTO aulas (nome, data, fk_id_turma, fk_id_oficina) VALUES
+('Aula 1', '2024-03-15', 1, 1), 
+('Aula 1', '2024-03-16', 2, 2), 
+('Aula 1', '2024-03-17', 3, 3), 
+('Aula 1', '2024-03-18', 4, 4), 
+('Aula 1', '2024-03-19', 5, 5),
+('Aula 1', '2024-03-15', 6, 2), 
+('Aula 1', '2024-03-16', 7, 3), 
+('Aula 1', '2024-03-17', 8, 4), 
+('Aula 1', '2024-03-18', 9, 1), 
+('Aula 1', '2024-03-19', 10, 2),
+('Aula 1', '2024-03-15', 11, 5), 
+('Aula 1', '2024-03-16', 12, 4), 
+('Aula 1', '2024-03-17', 13, 1),
+('Aula 1', '2024-03-15', 14, 2), 
+('Aula 1', '2024-03-16', 15, 6), 
+('Aula 1', '2024-03-17', 16, 7), 
+('Aula 1', '2024-03-18', 17, 8), 
+('Aula 1', '2024-03-19', 18, 9), 
+('Aula 1', '2024-03-15', 19, 10), 
+('Aula 1', '2024-03-16', 20, 1), 
+('Aula 1', '2024-03-17', 21, 2), 
+('Aula 1', '2024-03-18', 22, 3), 
+('Aula 1', '2024-03-19', 23, 4), 
+('Aula 1', '2024-03-15', 24, 5), 
+('Aula 1', '2024-03-16', 25, 6), 
+('Aula 1', '2024-03-17', 26, 7), 
+('Aula 1', '2024-03-18', 27, 8), 
+('Aula 1', '2024-03-19', 28, 9), 
+('Aula 1', '2024-03-15', 29, 10),
+('Aula 2', '2024-03-18', 1, 1),
+('Aula 2', '2024-03-19', 2, 2),
+('Aula 2', '2024-03-15', 3, 3),
+('Aula 2', '2024-03-16', 4, 4),
+('Aula 2', '2024-03-17', 5, 5),
+('Aula 2', '2024-03-18', 6, 2),
+('Aula 2', '2024-03-19', 7, 3),
+('Aula 2', '2024-03-15', 8, 4),
+('Aula 2', '2024-03-16', 9, 1),
+('Aula 2', '2024-03-17', 10, 2),
+('Aula 2', '2024-03-18', 11, 5),
+('Aula 2', '2024-03-19', 12, 4),
+('Aula 2', '2024-03-15', 13, 1),
+('Aula 2', '2024-03-16', 14, 2),
+('Aula 2', '2024-03-17', 15, 6),
+('Aula 2', '2024-03-18', 16, 7),
+('Aula 2', '2024-03-19', 17, 8),
+('Aula 2', '2024-03-15', 18, 9),
+('Aula 2', '2024-03-16', 19, 10),
+('Aula 2', '2024-03-17', 20, 1),
+('Aula 2', '2024-03-18', 21, 2),
+('Aula 2', '2024-03-19', 22, 3),
+('Aula 2', '2024-03-15', 23, 4),
+('Aula 2', '2024-03-16', 24, 5),
+('Aula 2', '2024-03-17', 25, 6),
+('Aula 2', '2024-03-18', 26, 7),
+('Aula 2', '2024-03-19', 27, 8),
+('Aula 2', '2024-03-15', 28, 9),
+('Aula 2', '2024-03-16', 29, 10),
+('Aula 3', '2024-03-22', 1, 1),
+('Aula 3', '2024-03-23', 2, 2),
+('Aula 3', '2024-03-24', 3, 3),
+('Aula 3', '2024-03-25', 4, 4),
+('Aula 3', '2024-03-26', 5, 5),
+('Aula 3', '2024-03-22', 6, 2),
+('Aula 3', '2024-03-23', 7, 3),
+('Aula 3', '2024-03-24', 8, 4),
+('Aula 3', '2024-03-25', 9, 1),
+('Aula 3', '2024-03-26', 10, 2),
+('Aula 3', '2024-03-22', 11, 5),
+('Aula 3', '2024-03-23', 12, 4),
+('Aula 3', '2024-03-24', 13, 1),
+('Aula 3', '2024-03-22', 14, 2),
+('Aula 3', '2024-03-23', 15, 6),
+('Aula 3', '2024-03-24', 16, 7),
+('Aula 3', '2024-03-25', 17, 8),
+('Aula 3', '2024-03-26', 18, 9),
+('Aula 3', '2024-03-22', 19, 10),
+('Aula 3', '2024-03-23', 20, 1),
+('Aula 3', '2024-03-24', 21, 2),
+('Aula 3', '2024-03-25', 22, 3),
+('Aula 3', '2024-03-26', 23, 4),
+('Aula 3', '2024-03-22', 24, 5),
+('Aula 3', '2024-03-23', 25, 6),
+('Aula 3', '2024-03-24', 26, 7),
+('Aula 3', '2024-03-25', 27, 8),
+('Aula 3', '2024-03-26', 28, 9),
+('Aula 3', '2024-03-22', 29, 10);
+
+SET FOREIGN_KEY_CHECKS=1;
+
+SET SQL_SAFE_UPDATES=1;
